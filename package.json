@@ -1,0 +1,9 @@
+{
+  "name": "open-your-eyes",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "睁眼看世界 — 阅读、知识与事件解释",
+  "scripts": {"build": "node scripts/build.mjs", "test": "node --test tests/site.test.mjs", "start": "node scripts/serve.mjs"},
+  "engines": {"node": ">=18"}
+}

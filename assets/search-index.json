@@ -1,0 +1,74 @@
+[
+  {
+    "title": "Aeon",
+    "en": "A WORLD OF IDEAS",
+    "summary": "从哲学、科学与文化出发，遇见值得停下来思考的问题。",
+    "tag": "思想与文化",
+    "label": "来源发现示例",
+    "section": "深度阅读",
+    "url": "reading/aeon/"
+  },
+  {
+    "title": "Farnam Street",
+    "en": "THINKING, WITH INTENTION",
+    "summary": "围绕学习、思维与决策，发现可用于日常反思的阅读线索。",
+    "tag": "思维与决策",
+    "label": "来源发现示例",
+    "section": "深度阅读",
+    "url": "reading/farnam-street/"
+  },
+  {
+    "title": "元认知",
+    "en": "METACOGNITION",
+    "summary": "意识到自己如何思考，并对思考过程进行监测与调节。",
+    "tag": "认知科学",
+    "label": "基础词条 · 示例",
+    "section": "知识百科",
+    "url": "knowledge/metacognition/"
+  },
+  {
+    "title": "系统综述",
+    "en": "SYSTEMATIC REVIEW",
+    "summary": "围绕明确问题，按预先规定的方法查找、筛选、评价并综合研究证据。",
+    "tag": "研究方法",
+    "label": "基础词条 · 示例",
+    "section": "知识百科",
+    "url": "knowledge/systematic-review/"
+  },
+  {
+    "title": "元分析",
+    "en": "META-ANALYSIS",
+    "summary": "在适当条件下，用统计方法合并两项或更多研究的结果。",
+    "tag": "研究方法",
+    "label": "基础词条 · 示例",
+    "section": "知识百科",
+    "url": "knowledge/meta-analysis/"
+  },
+  {
+    "title": "置信区间",
+    "en": "CONFIDENCE INTERVAL",
+    "summary": "用区间表达参数估计的不确定性；置信水平描述方法的长期覆盖表现。",
+    "tag": "统计基础",
+    "label": "基础词条 · 示例",
+    "section": "知识百科",
+    "url": "knowledge/confidence-interval/"
+  },
+  {
+    "title": "当一条航道暂时受阻",
+    "en": "THE CONNECTIONS WE CANNOT SEE",
+    "summary": "从港口到货架，沿着一条虚构航线，理解局部中断如何传导。",
+    "tag": "全球连接",
+    "label": "虚构事件 · 结构演示",
+    "section": "世界动态",
+    "url": "world/shipping-scenario/"
+  },
+  {
+    "title": "一座城市的开放数据实验",
+    "en": "WHEN INFORMATION BECOMES PUBLIC",
+    "summary": "从公布数据到真正可用，一项虚构公共项目需要跨越哪些环节？",
+    "tag": "公共治理",
+    "label": "虚构事件 · 结构演示",
+    "section": "世界动态",
+    "url": "world/data-scenario/"
+  }
+]
