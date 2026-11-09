@@ -216,6 +216,11 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.15; stroke-linecap: roun
   color: rgba(242, 235, 218, .55);
 }
 .globe-readout::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: var(--brass); box-shadow: 0 0 10px var(--brass); }
+.globe-hint {
+  position: absolute; right: 4%; bottom: 2%; max-width: 46%;
+  font-family: var(--mono); font-size: 9px; line-height: 1.6;
+  letter-spacing: .12em; color: rgba(242, 235, 218, .3); text-align: right;
+}
 .hero-actions { display: flex; flex-wrap: wrap; gap: 28px; align-items: center; margin-top: 38px; }
 .button {
   display: inline-flex; align-items: center; gap: 18px;
@@ -726,6 +731,17 @@ dialog > label { display: block; padding: 20px 28px 0; font-family: var(--mono);
 .toc a.is-current span { color: var(--brass-deep); }
 
 
+
+/* ——— 卡片底图：真实海岸线 ——— */
+.diagram--map { width: 100%; height: 100%; max-height: none; }
+.plate-art .diagram--map { width: 100%; height: 100%; max-height: none; }
+.diagram--map .coast-fill path { fill: rgba(242, 235, 218, .06); stroke: none; }
+.diagram--map .coast path { fill: none; stroke: rgba(242, 235, 218, .42); stroke-width: .9; }
+.plate-art:has(.diagram--map)::after { opacity: .3; }
+.diagram--map .mapnode circle { fill: none; stroke: rgba(198, 152, 82, .5); }
+.plate-art .diagram--map { opacity: .92; }
+.plate:hover .diagram--map .coast path { stroke: rgba(242, 235, 218, .45); }
+
 /* ——— 动效：首屏依次进场 ——— */
 @keyframes rise-in { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
 @keyframes globe-in { from { opacity: 0; transform: scale(.94); } to { opacity: 1; transform: none; } }
@@ -823,6 +839,7 @@ dialog > label { display: block; padding: 20px 28px 0; font-family: var(--mono);
   .hero-meta span { padding: 10px 14px 10px 0; margin-right: 14px; font-size: 9px; letter-spacing: .08em; }
   .hero-globe { max-width: 380px; }
   .globe-readout { font-size: 8.5px; }
+  .globe-hint { display: none; }
   .section { padding: 56px 0; }
   .section-head h2 { font-size: 24px; }
   .section-head { margin-bottom: 28px; }

@@ -4,7 +4,7 @@
 
 `assets/earth.svg` 为本站定制的矢量插画，使用正射投影、渐变、大气辉光、经纬线与程序化云层。不是 NASA 照片，也不表示实时地球影像。
 
-陆地轮廓来源：Natural Earth 公共领域地理数据，经 world-atlas 2.0.2 的 land-110m 数据转换。不包含国家边界或国家名称。工具 d3-geo 与 topojson-client 仅用于制作资产，不作为网站运行依赖。
+陆地轮廓来源：Natural Earth 公共领域地理数据，经 world-atlas 2.0.2 的 land-50m 数据转换。首屏地球使用 assets/land.js（简化后的全球海岸线），档案卡片底图使用 src/coast.mjs（按区域裁剪的局部海岸线，由 scripts/make-coast.mjs 生成）。均不包含国家边界或国家名称，仅作艺术化示意，不用于地理测量。
 
 - Natural Earth: https://www.naturalearthdata.com/about/terms-of-use/
 - world-atlas: https://github.com/topojson/world-atlas

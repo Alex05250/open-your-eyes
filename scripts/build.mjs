@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { sections, entries } from '../src/content.mjs';
+import { COAST } from '../src/coast.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -17,6 +18,21 @@ const icon = {
 };
 
 /* ——— 每张档案配一幅线刻画 ——— */
+const coastPaths = key => {
+  const c = COAST[key];
+  if (!c) return '';
+  const fills = (c.fills || []).map(d => `<path d="${d}"/>`).join('');
+  const lines = c.paths.map(d => `<path d="${d}"/>`).join('');
+  return `<g class="coast-fill">${fills}</g><g class="coast">${lines}</g>`;
+};
+
+// 真实海岸线底图上的示意航线：苏伊士 → 亚丁 → 科伦坡 → 新加坡
+const SHIP_ROUTE = 'M17 52C34 86 44 104 61 115S140 131 184 137 240 152 269 158';
+const SHIP_NODES = [[17, 52], [61, 115], [184, 137], [269, 158]];
+
+// 城市尺度海岸线 + 四个部门/平台节点的示意连边
+const DATA_NODES = [[132, 96], [178, 74], [196, 128], [236, 104]];
+
 function diagram(kind) {
   const grid = `<g opacity=".16"><path d="M0 50h320M0 100h320M0 150h320M80 0v200M160 0v200M240 0v200"/></g>`;
   const body = {
@@ -53,25 +69,20 @@ function diagram(kind) {
       <path d="M160 44v114" stroke="${BRASS}" stroke-dasharray="3 5"/>
       <path d="M120 138h80" opacity=".55"/><path d="M120 132v12M200 132v12" opacity=".55"/>
       <circle cx="160" cy="44" r="3.2" fill="${BRASS}" stroke="none"/>`,
-    shipping: `<path d="M26 148C96 148 118 44 190 44s58 44 100 44" opacity=".55" stroke="${BRASS}" stroke-dasharray="4 6"/>
-      <g opacity=".3"><path d="M26 148h60M190 44h80"/></g>
-      <circle cx="26" cy="148" r="3.4" fill="${BRASS}" stroke="none"/>
-      <circle cx="110" cy="96" r="3" fill="currentColor" stroke="none" opacity=".8"/>
-      <circle cx="190" cy="44" r="3.4" fill="${BRASS}" stroke="none"/>
-      <circle cx="290" cy="88" r="3" fill="currentColor" stroke="none" opacity=".8"/>
-      <path d="M110 96l24 8 22-6" opacity=".0"/>
-      <g opacity=".35"><path d="M56 30v14M52 34h8"/><path d="M264 132v14M260 136h8"/></g>`,
-    data: `<g opacity=".55">
-        <rect x="66" y="52" width="22" height="22"/><rect x="96" y="52" width="22" height="22"/><rect x="126" y="52" width="22" height="22"/><rect x="156" y="52" width="22" height="22"/><rect x="186" y="52" width="22" height="22"/><rect x="216" y="52" width="22" height="22"/>
-        <rect x="66" y="82" width="22" height="22" opacity=".6"/><rect x="126" y="82" width="22" height="22" opacity=".3"/><rect x="216" y="82" width="22" height="22" opacity=".6"/>
-        <rect x="66" y="112" width="22" height="22" opacity=".3"/><rect x="96" y="112" width="22" height="22" opacity=".7"/><rect x="186" y="112" width="22" height="22" opacity=".7"/>
+    shipping: `${coastPaths('indianOcean')}
+      <g opacity=".14"><path d="M0 50h320M0 100h320M0 150h320M80 0v200M160 0v200M240 0v200"/></g>
+      <path d="${SHIP_ROUTE}" fill="none" stroke="${BRASS}" stroke-width="1.4" stroke-dasharray="5 6" opacity=".9"/>
+      ${SHIP_NODES.map(([x, y], i) => `<g class="mapnode"><circle cx="${x}" cy="${y}" r="${i === 0 || i === 3 ? 9 : 6}" opacity=".55"/><circle cx="${x}" cy="${y}" r="2.6" fill="${BRASS}" stroke="none"/></g>`).join('')}`,
+    data: `${coastPaths('delta')}
+      <g opacity=".2"><path d="M0 60h320M0 130h320M110 0v200M210 0v200"/></g>
+      <g opacity=".7">
+        <path d="M${DATA_NODES[0][0]} ${DATA_NODES[0][1]}L${DATA_NODES[1][0]} ${DATA_NODES[1][1]}M${DATA_NODES[0][0]} ${DATA_NODES[0][1]}L${DATA_NODES[2][0]} ${DATA_NODES[2][1]}M${DATA_NODES[1][0]} ${DATA_NODES[1][1]}L${DATA_NODES[3][0]} ${DATA_NODES[3][1]}M${DATA_NODES[2][0]} ${DATA_NODES[2][1]}L${DATA_NODES[3][0]} ${DATA_NODES[3][1]}" stroke-dasharray="2 5" opacity=".5"/>
+        ${DATA_NODES.map(([x, y], i) => `<circle cx="${x}" cy="${y}" r="4.4" ${i === 3 ? `fill="${BRASS}" stroke="none"` : ''}/>`).join('')}
       </g>
-      <rect x="96" y="82" width="22" height="22" fill="${BRASS}" stroke="none" opacity=".85"/>
-      <rect x="156" y="112" width="22" height="22" fill="${BRASS}" stroke="none" opacity=".45"/>
-      <path d="M252 52v82" opacity=".4"/><path d="M246 52h12M246 134h12" opacity=".4"/>
-      <path d="M120 154h80" opacity=".3" stroke-dasharray="2 5"/>`
+      <g opacity=".5"><rect x="40" y="140" width="10" height="10"/><rect x="56" y="140" width="10" height="10"/><rect x="72" y="140" width="10" height="10" fill="${BRASS}" stroke="none"/><rect x="88" y="140" width="10" height="10"/></g>`
   }[kind];
-  return `<svg class="diagram" viewBox="0 0 320 200" aria-hidden="true">${grid}${body}</svg>`;
+  const map = kind === 'shipping' || kind === 'data';
+  return `<svg class="diagram${map ? ' diagram--map' : ''}" viewBox="0 0 320 200"${map ? ' preserveAspectRatio="xMidYMid slice"' : ''} aria-hidden="true">${map ? '' : grid}${body}</svg>`;
 }
 
 /* ——— 页面骨架 ——— */
@@ -101,7 +112,7 @@ function shell({ title, desc, body, base = './', section = '', home = false, glo
 </body></html>`;
 }
 
-const globeBlock = `<div class="hero-globe"><canvas data-globe aria-label="世界地球示意图，可拖动旋转"></canvas><div class="globe-frame" aria-hidden="true"><span></span><span></span><span></span><span></span></div><div class="globe-readout" aria-hidden="true">视线中心 <b data-globe-coord>24.0°N 108.0°E</b></div></div>`;
+const globeBlock = `<div class="hero-globe"><canvas data-globe aria-label="世界地球示意图，可拖动旋转"></canvas><div class="globe-frame" aria-hidden="true"><span></span><span></span><span></span><span></span></div><div class="globe-readout" aria-hidden="true">视线中心 <b data-globe-coord>24.0°N 108.0°E</b></div><p class="globe-hint">拖动旋转 · 悬停栏目，地球转向它的坐标</p></div>`;
 
 /* ——— 首页 ——— */
 const home = `<section class="hero">
@@ -120,7 +131,7 @@ const home = `<section class="hero">
 
 <section class="section" id="portals"><div class="wrap">
   <div class="section-head"><div><div class="kicker">THREE WAYS TO SEE</div><h2>从三个入口，走向更大的世界。</h2></div><div class="aside"><b>03</b>条路径<br>为理解，而不只是知道</div></div>
-  <div class="portals">${sections.map((s, i) => `<a class="portal" href="./${s.id}/" data-reveal><span class="portal-no"><b>0${i + 1}</b>${s.no} / ${s.en}</span><h3><small>${s.en}</small>${s.title}</h3><p>${s.id === 'reading' ? '遇见好思想，让阅读超越信息摄入。' : s.id === 'knowledge' ? '厘清关键概念，建立自己的理解坐标。' : '沿着事件的脉络，观察世界如何相连。'}</p><span class="portal-go" aria-hidden="true">${icon.upRight}</span></a>`).join('')}</div>
+  <div class="portals">${sections.map((s, i) => `<a class="portal" href="./${s.id}/" data-reveal data-globe-focus="${s.id === 'reading' ? '-0.1,51.5' : s.id === 'knowledge' ? '-71.1,42.4' : '103.8,1.3'}"><span class="portal-no"><b>0${i + 1}</b>${s.no} / ${s.en}</span><h3><small>${s.en}</small>${s.title}</h3><p>${s.id === 'reading' ? '遇见好思想，让阅读超越信息摄入。' : s.id === 'knowledge' ? '厘清关键概念，建立自己的理解坐标。' : '沿着事件的脉络，观察世界如何相连。'}</p><span class="portal-go" aria-hidden="true">${icon.upRight}</span></a>`).join('')}</div>
 </div></section>
 
 <section class="section section--tight"><div class="wrap">

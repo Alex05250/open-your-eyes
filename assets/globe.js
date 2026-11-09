@@ -42,7 +42,7 @@
   function init(canvas) {
     const ctx = canvas.getContext('2d');
     const readout = document.querySelector('[data-globe-coord]');
-    const state = { lon: 108, lat: 24, auto: !reduced, drag: false, v: 0, w: 0, h: 0, dpr: 1, R: 0, cx: 0, cy: 0 };
+    const state = { lon: 108, lat: 24, auto: !reduced, drag: false, v: 0, w: 0, h: 0, dpr: 1, R: 0, cx: 0, cy: 0, target: null };
 
     function resize() {
       const rect = canvas.getBoundingClientRect();
@@ -138,14 +138,22 @@
       ctx.stroke();
 
       // 陆地
-      ctx.fillStyle = `rgba(226, 209, 176, .2)`;
-      ctx.strokeStyle = `rgba(${INK}, .82)`;
-      ctx.lineWidth = 1.1;
+      ctx.fillStyle = `rgba(214, 195, 160, .38)`;
       ctx.lineJoin = 'round';
+      ctx.lineCap = 'round';
+      ctx.strokeStyle = `rgba(236, 222, 196, .1)`;
+      ctx.lineWidth = 3;
       for (const poly of LAND) {
         for (const ring of poly) {
-          const any = ringPath(ring, lon0, lat0, R, cx, cy, true);
-          if (!any) continue;
+          if (!ringPath(ring, lon0, lat0, R, cx, cy, true)) continue;
+          ctx.stroke();
+        }
+      }
+      ctx.strokeStyle = `rgba(244, 236, 218, .95)`;
+      ctx.lineWidth = 1.15;
+      for (const poly of LAND) {
+        for (const ring of poly) {
+          if (!ringPath(ring, lon0, lat0, R, cx, cy, true)) continue;
           ctx.fill();
           ctx.stroke();
         }
@@ -153,7 +161,7 @@
 
       // 光照：左上受光
       const light = ctx.createRadialGradient(cx - R * 0.45, cy - R * 0.5, R * 0.05, cx - R * 0.25, cy - R * 0.3, R * 1.5);
-      light.addColorStop(0, 'rgba(255, 246, 226, .12)');
+      light.addColorStop(0, 'rgba(255, 246, 226, .16)');
       light.addColorStop(0.45, 'rgba(255, 246, 226, .03)');
       light.addColorStop(1, 'rgba(0, 0, 0, 0)');
       ctx.fillStyle = light;
@@ -162,8 +170,8 @@
       // 晨昏线
       const night = ctx.createRadialGradient(cx - R * 0.6, cy - R * 0.62, R * 0.35, cx + R * 0.35, cy + R * 0.4, R * 1.55);
       night.addColorStop(0, 'rgba(2, 5, 8, 0)');
-      night.addColorStop(0.55, 'rgba(2, 5, 8, .28)');
-      night.addColorStop(1, 'rgba(2, 5, 8, .88)');
+      night.addColorStop(0.6, 'rgba(2, 5, 8, .16)');
+      night.addColorStop(1, 'rgba(2, 5, 8, .72)');
       ctx.fillStyle = night;
       ctx.fillRect(cx - R, cy - R, R * 2, R * 2);
 
@@ -195,11 +203,11 @@
           const p = project(pt[0], pt[1], lon0, lat0);
           if (p.z <= 0.06) continue;
           const sx = cx + p.x * R, sy = cy - p.y * R;
-          const glow = ctx.createRadialGradient(sx, sy, 0, sx, sy, 9);
-          glow.addColorStop(0, `rgba(${BRASS}, .55)`);
+          const glow = ctx.createRadialGradient(sx, sy, 0, sx, sy, 7);
+          glow.addColorStop(0, `rgba(${BRASS}, .34)`);
           glow.addColorStop(1, `rgba(${BRASS}, 0)`);
           ctx.fillStyle = glow;
-          ctx.beginPath(); ctx.arc(sx, sy, 9, 0, Math.PI * 2); ctx.fill();
+          ctx.beginPath(); ctx.arc(sx, sy, 7, 0, Math.PI * 2); ctx.fill();
           ctx.fillStyle = `rgba(255, 228, 180, .92)`;
           ctx.beginPath(); ctx.arc(sx, sy, 1.6, 0, Math.PI * 2); ctx.fill();
         }
@@ -234,7 +242,8 @@
 
       if (readout) {
         const la = Math.abs(state.lat).toFixed(1) + '°' + (state.lat >= 0 ? 'N' : 'S');
-        const lo = Math.abs(((state.lon + 540) % 360) - 180).toFixed(1) + '°' + (((state.lon + 540) % 360) - 180 >= 0 ? 'E' : 'W');
+        const lon = ((((state.lon + 180) % 360) + 360) % 360) - 180;
+        const lo = Math.abs(lon).toFixed(1) + '°' + (lon >= 0 ? 'E' : 'W');
         readout.textContent = `${la}  ${lo}`;
       }
     }
@@ -244,7 +253,19 @@
       raf = 0;
       const dt = last ? Math.min(t - last, 64) : 16;
       last = t;
-      if (state.auto && !state.drag) {
+      if (state.target) {
+        const dLon = ((state.target.lon - state.lon + 540) % 360) - 180;
+        const dLat = state.target.lat - state.lat;
+        state.lon += dLon * 0.09;
+        state.lat += dLat * 0.09;
+        draw();
+        if (Math.abs(dLon) < 0.35 && Math.abs(dLat) < 0.35) {
+          state.lon = state.target.lon;
+          state.lat = state.target.lat;
+          state.target = null;
+          draw();
+        }
+      } else if (state.auto && !state.drag) {
         state.lon -= 0.0016 * dt; // 约 1.6°/s 的慢速自转
         draw();
       }
@@ -274,6 +295,19 @@
     };
     canvas.addEventListener('pointerup', end);
     canvas.addEventListener('pointercancel', end);
+
+    document.querySelectorAll('[data-globe-focus]').forEach(el => {
+      const focus = () => {
+        const [lon, lat] = (el.dataset.globeFocus || '').split(',').map(Number);
+        if (!Number.isFinite(lon) || !Number.isFinite(lat)) return;
+        if (reduced) { state.lon = lon; state.lat = lat; draw(); }
+        else state.target = { lon, lat };
+      };
+      el.addEventListener('mouseenter', focus);
+      el.addEventListener('focus', focus);
+      el.addEventListener('mouseleave', () => { state.target = null; });
+      el.addEventListener('blur', () => { state.target = null; });
+    });
 
     new ResizeObserver(resize).observe(canvas);
     resize();
