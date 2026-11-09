@@ -74,12 +74,12 @@ function diagram(kind) {
       <path d="${SHIP_ROUTE}" fill="none" stroke="${BRASS}" stroke-width="1.4" stroke-dasharray="5 6" opacity=".9"/>
       ${SHIP_NODES.map(([x, y], i) => `<g class="mapnode"><circle cx="${x}" cy="${y}" r="${i === 0 || i === 3 ? 9 : 6}" opacity=".55"/><circle cx="${x}" cy="${y}" r="2.6" fill="${BRASS}" stroke="none"/></g>`).join('')}`,
     data: `${coastPaths('delta')}
-      <g opacity=".2"><path d="M0 60h320M0 130h320M110 0v200M210 0v200"/></g>
+      <g opacity=".3"><path d="M0 60h320M0 130h320M110 0v200M210 0v200"/></g>
       <g opacity=".7">
-        <path d="M${DATA_NODES[0][0]} ${DATA_NODES[0][1]}L${DATA_NODES[1][0]} ${DATA_NODES[1][1]}M${DATA_NODES[0][0]} ${DATA_NODES[0][1]}L${DATA_NODES[2][0]} ${DATA_NODES[2][1]}M${DATA_NODES[1][0]} ${DATA_NODES[1][1]}L${DATA_NODES[3][0]} ${DATA_NODES[3][1]}M${DATA_NODES[2][0]} ${DATA_NODES[2][1]}L${DATA_NODES[3][0]} ${DATA_NODES[3][1]}" stroke-dasharray="2 5" opacity=".5"/>
+        <path d="M${DATA_NODES[0][0]} ${DATA_NODES[0][1]}L${DATA_NODES[1][0]} ${DATA_NODES[1][1]}M${DATA_NODES[0][0]} ${DATA_NODES[0][1]}L${DATA_NODES[2][0]} ${DATA_NODES[2][1]}M${DATA_NODES[1][0]} ${DATA_NODES[1][1]}L${DATA_NODES[3][0]} ${DATA_NODES[3][1]}M${DATA_NODES[2][0]} ${DATA_NODES[2][1]}L${DATA_NODES[3][0]} ${DATA_NODES[3][1]}" stroke-dasharray="3 5" opacity=".85"/>
         ${DATA_NODES.map(([x, y], i) => `<circle cx="${x}" cy="${y}" r="4.4" ${i === 3 ? `fill="${BRASS}" stroke="none"` : ''}/>`).join('')}
       </g>
-      <g opacity=".5"><rect x="40" y="140" width="10" height="10"/><rect x="56" y="140" width="10" height="10"/><rect x="72" y="140" width="10" height="10" fill="${BRASS}" stroke="none"/><rect x="88" y="140" width="10" height="10"/></g>`
+`
   }[kind];
   const map = kind === 'shipping' || kind === 'data';
   return `<svg class="diagram${map ? ' diagram--map' : ''}" viewBox="0 0 320 200"${map ? ' preserveAspectRatio="xMidYMid slice"' : ''} aria-hidden="true">${map ? '' : grid}${body}</svg>`;
